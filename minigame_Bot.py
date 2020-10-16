@@ -3,6 +3,7 @@ import asyncio
 import random
 import pickle
 from discord.ext import commands
+import os
 
 client = commands.Bot(command_prefix=':G ')
 
@@ -922,12 +923,5 @@ async def change(ctx, type, user_name: discord.Member, amount):
                               color=0xaaaaaa)
         await ctx.send(embed=embed)
 
-# 가위바위보 무승부 시 재대결
-
-# 반응속도 테스트 wait_for 안쓰고 메세지 입력받기 (wait_for("message") 할 때 message에 관련된 내용 참고하면 될 듯
-
-# 야추 일정 point 이상 사용 가능 기능 고려 + 최적화 + 야추 숫자입력 try ... expect 으로 바꾸기
-
-# parameter 생략된 경우 에러창 띄우는 함수 만들기
-
-client.run("NzYzMDAwMzc0MjM1NjI3NTIx.X3xVeQ.RMyxd55-Q_E3MQBMsK7HSRak4Bw")
+access_token = os.environ["BOT_TOKEN"]
+client.run(access_token)
