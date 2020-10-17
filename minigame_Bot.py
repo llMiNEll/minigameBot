@@ -354,7 +354,7 @@ async def yacht(ctx, opponent: discord.Member):
                                               + "2) 텍스트가 나오자마자 채팅을 입력하면 오작동할 가능성이 있습니다.")
         await ctx.send(embed=embed)
         go = True
-        await asyncio.sleep(3.0)
+        await asyncio.sleep(2.0)
     else:
         embed = discord.Embed(title="Yacht Dice [2 Player]",
                               description="Player A : [" + str(ctx.author) + "] vs. [" + str(
@@ -366,7 +366,7 @@ async def yacht(ctx, opponent: discord.Member):
 
         while True:  # 상대방 입장 받기
             try:
-                msg = await client.wait_for("message", check=check_opponent, timeout=15.0)
+                msg = await client.wait_for("message", check=check_opponent, timeout=10.0)
             except asyncio.TimeoutError:
                 time_out = True
                 break
@@ -605,40 +605,47 @@ async def yacht(ctx, opponent: discord.Member):
             while True:  # Player 입력받기 [카테고리]
                 error = False
                 choice = 0
-                if turn % 2 == 0:
-                    msg = await client.wait_for("message", check=check_ctx)
-                else:
-                    msg = await client.wait_for("message", check=check_opponent)
-
-                if msg.content == "항복":
-                    if turn % 2 == 0:  # Player A가 항복한 경우
-                        embed = discord.Embed(title="[Player A]", description="정말로 항복하시겠습니까?\n [yes] / [no]",
-                                              color=0xaa0000)
+                try:
+                    if turn % 2 == 0:
+                        msg = await client.wait_for("message", check=check_ctx)
                     else:
-                        embed = discord.Embed(title="[Player B]", description="정말로 항복하시겠습니까?\n [yes] / [no]",
-                                              color=0x0000aa)
-                    await ctx.send(embed=embed)
+                        msg = await client.wait_for("message", check=check_opponent)
 
-                    while True:  # Player 입력받기
-                        if turn % 2 == 0:
-                            msg = await client.wait_for("message", check=check_ctx)
+                    if msg.content == "항복":
+                        if turn % 2 == 0:  # Player A가 항복한 경우
+                            embed = discord.Embed(title="[Player A]", description="정말로 항복하시겠습니까?\n [yes] / [no]",
+                                                  color=0xaa0000)
                         else:
-                            msg = await client.wait_for("message", check=check_opponent)
+                            embed = discord.Embed(title="[Player B]", description="정말로 항복하시겠습니까?\n [yes] / [no]",
+                                                  color=0x0000aa)
+                        await ctx.send(embed=embed)
 
+                        while True:  # Player 입력받기
+                            if turn % 2 == 0:
+                                msg = await client.wait_for("message", check=check_ctx)
+                            else:
+                                msg = await client.wait_for("message", check=check_opponent)
+
+                            if msg.content == "yes":
+                                surren[turn % 2] = True
+                                await ctx.channel.purge(limit=(4 + erase_two))
+                                break
+                            elif msg.content == "no":
+                                await ctx.channel.purge(limit=(3 + erase_two))
+                                erase_two = 0
+                                break
+                            else:
+                                await ctx.channel.purge(limit=1)
+                                erase_two += 1
+                                await ctx.send("잘못된 입력입니다. 다시 입력해주세요.")
                         if msg.content == "yes":
-                            surren[turn % 2] = True
-                            await ctx.channel.purge(limit=(4 + erase_two))
                             break
-                        elif msg.content == "no":
-                            await ctx.channel.purge(limit=(3 + erase_two))
-                            erase_two = 0
-                            break
-                        else:
-                            await ctx.channel.purge(limit=1)
-                            erase_two += 1
-                            await ctx.send("잘못된 입력입니다. 다시 입력해주세요.")
-                    if msg.content == "yes":
-                        break
+
+                except ValueError:
+                    erase_two += 1
+                    await ctx.channel.purge(limit=1)
+                    await ctx.send("잘못된 입력입니다. 카테고리의 번호를 입력해주세요.")
+
                 else:
                     for i in range(14):
                         if msg.content == str(i + 1):
@@ -654,6 +661,11 @@ async def yacht(ctx, opponent: discord.Member):
                                 error = True
                                 break
 
+                    # count 정의
+                    count = [0 for p in range(6)]
+                    for i in range(5):
+                        count[dice[i] - 1] += 1
+
                     # subtotal / total
                     if choice == 6 or choice == 13:
                         await ctx.channel.purge(limit=1)
@@ -661,13 +673,8 @@ async def yacht(ctx, opponent: discord.Member):
                         await ctx.send("subtotal이나 Total은 선택할 수 없습니다.")
                         error = True
 
-                    # count 정의
-                    count = [0 for p in range(6)]
-                    for i in range(5):
-                        count[dice[i] - 1] += 1
-
                     # Aces ~ Sixes
-                    if 0 <= choice <= 5:
+                    elif 0 <= choice <= 5:
                         for i in range(6):
                             if choice == i:
                                 for j in range(5):
@@ -827,8 +834,7 @@ async def yacht(ctx, opponent: discord.Member):
         else:
             embed = discord.Embed(title="Yacht Dice [Single Play]", color=0xaa0000)
             embed.add_field(name="Player A : " + str(score[13][0]) + " vs. " + str(score[13][1]) + " : Player B"
-                            , value="Player A : " + str(scorefunc(0, "win")) + " point 획득\n"
-                                    + "[Single Play는 최고 기록만 저장됩니다.", inline=False)
+                            , value="[Single Play는 최고 기록만 저장됩니다.]", inline=False)
 
         await ctx.send(embed=embed)
 
