@@ -346,12 +346,6 @@ async def yacht(ctx, opponent: discord.Member):
     start = False
     go = False
 
-        # 나중에 카테고리가 만두인 경우로 변경
-    if opponent.id == "763786586684391498" or opponent.id == "762352756652244996" or opponent.id == "762303766145269760":
-        embed = discord.Embed(title="Yacht Dice [warning]",
-                              description="Bot과는 게임을 돌릴 수 없습니다.",
-                              color=0x62d4a8)
-            
     if ctx.author == opponent:
         embed = discord.Embed(title="Yacht Dice [Single Play]",
                               description="Player A : [" + str(ctx.author) + "] vs. [" + str(opponent) + "] : Player B",
@@ -362,47 +356,54 @@ async def yacht(ctx, opponent: discord.Member):
         go = True
         await asyncio.sleep(2.0)
     else:
-        embed = discord.Embed(title="Yacht Dice [2 Player]",
-                              description="Player A : [" + str(ctx.author) + "] vs. [" + str(
-                                  opponent) + "] : Player B\n"
-                                          + str(opponent) + "님은 게임울 수락하려면 \"수락\"을, 아니면 \"거절\"을 입력하세요.", color=0x62d4a8)
-        embed.add_field(name="[주의 사항]", value="1) 원활한 게임 진행을 위해 두 플레이어는 같은 체널을 사용해주세요.\n"
+        # 나중에 카테고리가 만두인 경우로 변경
+        if opponent.id == "763786586684391498" or opponent.id == "762352756652244996" or opponent.id == "762303766145269760":
+            embed = discord.Embed(title="Yacht Dice [warning]",
+                                  description="Bot과는 게임을 돌릴 수 없습니다.",
+                                  color=0x62d4a8)
+            await ctx.send(embed=embed)
+        else:    
+            embed = discord.Embed(title="Yacht Dice [2 Player]",
+                                  description="Player A : [" + str(ctx.author) + "] vs. [" + str(
+                                              opponent) + "] : Player B\n"
+                                              + str(opponent) + "님은 게임울 수락하려면 \"수락\"을, 아니면 \"거절\"을 입력하세요.", color=0x62d4a8)
+            embed.add_field(name="[주의 사항]", value="1) 원활한 게임 진행을 위해 두 플레이어는 같은 체널을 사용해주세요.\n"
                                               + "2) 텍스트가 나오자마자 채팅을 입력하면 오작동할 가능성이 있습니다.")
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
 
-        while True:  # 상대방 입장 받기
-            try:
-                msg = await client.wait_for("message", check=check_opponent, timeout=10.0)
-            except asyncio.TimeoutError:
-                time_out = True
-                break
-            else:
-                if msg.content == "수락":
-                    start = True
-                    break
-                elif msg.content == "거절":
-                    start = False
+            while True:  # 상대방 입장 받기
+                try:
+                    msg = await client.wait_for("message", check=check_opponent, timeout=10.0)
+                except asyncio.TimeoutError:
+                    time_out = True
                     break
                 else:
-                    await ctx.send("잘못된 입력입니다. 다시 입력해주세요.")
+                    if msg.content == "수락":
+                        start = True
+                        break
+                    elif msg.content == "거절":
+                        start = False
+                        break
+                    else:
+                        await ctx.send("잘못된 입력입니다. 다시 입력해주세요.")
 
-        if time_out:  # 시간이 초과된 경우
-            embed = discord.Embed(title="Yacht Dice [2 Player]",
-                                  description="Player A : " + str(ctx.author) + " vs. " + str(
-                                      opponent) + " : Player B\n"
-                                              + "입력 시간이 초과되었습니다.", color=0x62d4a8)
-            await ctx.send(embed=embed)
-
-        elif not start:  # 게임이 거절된 경우
-            embed = discord.Embed(title="Yacht Dice [2 Player]",
-                                  description="Player A : " + str(ctx.author) + " vs. " + str(
-                                      opponent) + " : Player B\n"
-                                              + str(opponent) + "에 의해 게임이 거절되었습니다.", color=0x62d4a8)
-            await ctx.send(embed=embed)
-
-        else:  # 게임을 수락한 경우
-            go = True
-
+            if time_out:  # 시간이 초과된 경우
+                embed = discord.Embed(title="Yacht Dice [2 Player]",
+                                      description="Player A : " + str(ctx.author) + " vs. " + str(
+                                          opponent) + " : Player B\n"
+                                                  + "입력 시간이 초과되었습니다.", color=0x62d4a8)
+                await ctx.send(embed=embed)
+    
+            elif not start:  # 게임이 거절된 경우
+                embed = discord.Embed(title="Yacht Dice [2 Player]",
+                                      description="Player A : " + str(ctx.author) + " vs. " + str(
+                                          opponent) + " : Player B\n"
+                                                  + str(opponent) + "에 의해 게임이 거절되었습니다.", color=0x62d4a8)
+                await ctx.send(embed=embed)
+    
+            else:  # 게임을 수락한 경우
+                go = True
+            
     if go:  # 게임이 수락된 경우
         for turn in range(24):
             fixed = [False, False, False, False, False]
