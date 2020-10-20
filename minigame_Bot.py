@@ -357,7 +357,7 @@ async def yacht(ctx, opponent: discord.Member):
         await asyncio.sleep(2.0)
     else:
         # 나중에 카테고리가 만두인 경우로 변경
-        if opponent.id == "763786586684391498" or opponent.id == "762352756652244996" or opponent.id == "762303766145269760":
+        if opponent.id == 763786586684391498 or opponent.id == 762352756652244996 or opponent.id == 762303766145269760:
             embed = discord.Embed(title="Yacht Dice [warning]",
                                   description="Bot과는 게임을 돌릴 수 없습니다.",
                                   color=0x62d4a8)
